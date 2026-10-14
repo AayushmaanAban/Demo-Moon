@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOON – Experimental Indian Streetwear</title>
+  <style>
+    /* ----------- Basic Satoshi‑style layout ----------- */
+    *{box-sizing:border;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+    html,body{#height:100%;background:#0a0a0a;color:#f0f0f0;}
+    a{color:#e6e6e6;text-decoration:none;}
+    a:hover{color:#fff;}
+    /* Header */
+    header{
+      position:fixed;top:0;left:0;width:100%;background:#111;
+      padding:1rem 2rem;z-index:100;display:flex;justify-content:space-between;align-items:center;
+    }
+    header .logo{
+      font-family:'Playfair Display',serif;font-size:1.8rem;letter-spacing:2px;
+    }
+    nav{display:flex;gap:2rem;}
+    nav a{font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;}
+    /* Hero / intro */
+    .hero{
+      min-height:80%;position:relative;background:
+        linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),
+        url('https://images.unsplash.com/photo-1522658123104-b11b5b0f1115?w=1600&h=800&fit=crop') center/cover fixed;
+      display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;
+    }
+    .hero h1{font-size:4rem;margin-bottom:1rem;font-family:'Playfair Display',serif;}
+    .hero p{max-width:600px;font-size:1.2rem;line-height:1.6;}
+    /* Products grid */
+    .products{
+      padding:8rem 2rem 2rem;max-width:1400px;margin:auto;
+    }
+    .products h2{
+      font-family:'Playfair Display',serif;font-size:2.5rem;margin-bottom:2rem;text-align:center;
+    }
+    .grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;
+    }
+    .card{
+      background:#1a1a1a;border-radius:8px;overflow:position;position:relative;
+    }
+    .card img{
+      width:100%;height:260px;object-fit:cover;border-radius:8px 8px 0 0;
+    }
+    .card .info{
+      padding:1rem;display:flex;flex-direction:column;justify-content:flex-end;
+    }
+    .card .title{font-size:0.9rem;margin-bottom:0.3rem;}
+    .card .price{
+      font-size:1.2rem;color:#ffd700;margin-bottom:0.8rem;
+    }
+    .card .add{
+      align-self:flex-end;background:#e53935;color:#fff;padding:0.4rem 0.8rem;
+      border:none;border-radius:4px;font-size:0.7rem;cursor:pointer;
+    }
+    /* Simple cart drawer */
+    #cart{
+      position:fixed;right:-300px;top:0;height:100%;width:300px;background:#111;
+      padding:2rem;color:#fff;transition:right 0.3s;z-index:200;
+    }
+    #cart.active{right:0;}
+    #cart .close{
+      position:absolute;top:1rem;right:1rem;font-size:1.2rem;cursor:pointer;
+    }
+    #cart .items{margin-top:2rem;}
+    #cart .item{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom1rem;padding-bottom:1rem;border-bottom:1px solid #333;
+    }
+    #cart .total{
+      margin-top:1rem;padding-top:1rem;border-top:1px solid #333;font-size:1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <h1 class="logo">MOON</h1>
+  <nav>
+    <a>Shop</a>
+    <a>About</a>
+    <a>Lookbook</a>
+  </nav>
+  <!-- Cart button (tiny basket icon) -->
+  <div id="cartBtn" onclick="document.getElementById('cart').classList.toggle('active')">🛒</div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Feel Different</h1>
+  <p>Experimental Indian streetwear that turns heritage into experimental luxury silhouettes. <br>Built for the 18‑25 crowd that wants to stand out – without saying a word.</p>
+</section>
+
+<!-- Products -->
+<section class="products">
+  <h2>MOON Collection</h2>
+  <div class="grid" id="productGrid"></div>
+</section>
+
+<!-- Cart Drawer -->
+<div id="cart">
+  <span class="close" onclick="document.getElementById('cart').classList.remove('active')">×</span>
+  <h3>My Cart</h3>
+  <div class="items" id="cartItems">(empty)</div>
+  <div class="total" id="cartTotal">₹0</div>
+</div>
+
+<script>
+  // ---- Product data extracted from the CSV ----
+  const products = [
+    {
+      handle: "boot-leg-73",
+      title: "Boot Leg '73",
+      price: 2999,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/unnamed_1.png?v=1784757893",
+      alt: "Boot Leg '73 trousers"
+    },
+    {
+      handle: "boot-leg-72",
+      title: "Boot Leg '72 - DENIM",
+      price: 2699,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/E7C360ED-B854-4296-AC26-DADCCF92CD0F.png?v=1784757692",
+      alt: "Boot Leg '72 denim jeans"
+    },
+    {
+      handle: "wild",
+      title: "WILD",
+      price: 2799,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/IMG_0838_e9d4dace-2c42-4a33-970f-7683aea773c6.png?v=1784747263",
+      alt: "White shirt with leopard‑print collar"
+    },
+    {
+      handle: "lapze-cap",
+      title: "Lapze Cap",
+      price: 999,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/B5BF08CB-8D68-406A-80CC-3AF1C7AA94ED.png?v=1784757663",
+      alt: "Leopard‑print baseball cap"
+    },
+    {
+      handle: "sung-tee",
+      title: "Big Collar",
+      price: 2799,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/A927D735-F4B7-4336-B1F5-CFB1412B7594.png?v=1784757634",
+      alt: "Navy shirt with big collar"
+    },
+    {
+      handle: "zipper-pants-green",
+      title: "Zipper Pants (Green)",
+      price: 2999,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/B5E2E57F-8DAC-4408-9EBE-1F5A9AC545AB.png?v=1784757606",
+      alt: "Green zipper pants"
+    },
+    {
+      handle: "jorts-cum-pants",
+      title: "Jorts‑cum‑pants",
+      price: 3799,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/0CE213D1-79CE-47E4-9C36-075C927582EF.png?v=1784757575",
+      alt: "Convertible denim jorts"
+    },
+    {
+      handle: "jogger-pants",
+      title: "Toji Pants",
+      price: 2999,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/unnamed.png?v=1784757811",
+      alt: "Beige jogger pants"
+    },
+    {
+      handle: "polo-tee",
+      title: "Bobby Collar",
+      price: 2799,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/08221687-1634-4DFC-A466-067CF215A602.png?v=1784757514",
+      alt: "White & blue round polo"
+    },
+    {
+      handle: "tween-shirt",
+      title: "Snug Shirt",
+      price: 3799,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/64BC62C9-2EA2-4D8A-8D9C-44C46C222EAB.png?v=1784757482",
+      alt: "Blue twin‑button shirt"
+    },
+    {
+      handle: "black-trooper-pants",
+      title: "Toji Pants (black)",
+      price: 2999,
+      image: "https://cdn.shopify.com/s/files/1/0697/6844/6130/files/A6049A97-3653-437E-82D7-E34204A560D2.png?v=1784757447",
+      alt: "Black jogger pants"
+    }
+  ];
+
+  // ---- Build product grid ----
+  const grid = document.getElementById('productGrid');
+  products.forEach(p => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${p.image}" alt="${p.alt}">
+      .info>
+        <h3 class="title">${p.title}</h3>
+        <div class="price">₹${p.price}</div>
+        <button class="add" data-handle="${p.handle}" data-price="${p.price}">Add to Cart</button>
+      .info>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ---- Cart logic ----
+  let cart = [];
+
+  document.querySelectorAll('.add').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const handle = btn.dataset.handle;
+      const price = parseInt(btn.dataset.price, 10);
+      const existing = cart.find(item => item.handle === handle);
+      if (existing) existing.qty += 1;
+      else cart.push({handle, price, qty: 1});
+      updateCart();
+    });
+  });
+
+  function updateCart() {
+    const itemsDiv = document.getElementById('cartItems');
+    const totalDiv = document.getElementById('cartTotal');
+    let subtotal = 0;
+    if (cart.length === 0) {
+      itemsDiv.innerHTML = '(empty)';
+    } else {
+      itemsDiv.innerHTML = cart.map(item => `
+        <span>${item.title || item.handle} – ₹${item.price} × ${item.qty}</span>
+        <button class="remove" data-handle="${item.handle}">‑</button>
+      `).join('');
+      subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    }
+    totalDiv.innerHTML = `₹${subtotal}`;
+    // remove buttons
+    document.querySelectorAll('.remove').forEach(r=>{
+      r.addEventListener('click',()=>{
+        const h = r.dataset.handle;
+        cart = cart.filter(i=>i.handle!==h);
+        updateCart();
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
